@@ -1,4 +1,4 @@
-# Rock-Paper-Scissors-Winter16
+# Rock, Paper, Scissors!
 
 
 About:
