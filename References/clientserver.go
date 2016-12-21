@@ -38,8 +38,7 @@ func main() {
                         fmt.Println("Initiating client mode")
                         client(*ipAddress, *port)
                 } else if *ednamode == "server" {
-
-fmt.Println("Initiating server mode")
+                        fmt.Println("Initiating server mode")
                         server(*port)
                 }
         } else {
