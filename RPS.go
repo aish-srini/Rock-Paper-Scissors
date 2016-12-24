@@ -27,23 +27,29 @@ import (
  *      command line.
  */
 func main() {
-        chooseOpponent := flag.String("flagname", "Waiting for players to join...", "computer or human?")
+        playerType := flag.String("player", "Beginning game now...", "Are you a computer or a human?")
+        chooseOpponent := flag.String("opponent", "Beginning game...", "Are you playing a computer or a human?")
+        
+//         ipAddress := flag.String("ipAddress", "169.229.50.178", "input ip address")
+//         port := flag.Int("port", 2003, "input port number")
+//         flag.Parse()
 
-        ipAddress := flag.String("ipAddress", "169.229.50.178", "input ip address")
-        port := flag.Int("port", 2003, "input port number")
-        flag.Parse()
-
-        if *chooseOpponent != "" {
-                if *chooseOpponent == "computer" {
-                        clientcomp(*ipAddress, *port)
-                        fmt.Println("Waiting for player 2...")
-                        servercomp(*port)
-                } else if *chooseOpponent == "human" {
-                        fmt.Println("Waiting for player 2...")
-                        client(*port)
-                }
+        if *chooseOpponent != "" and *playerType != "" {
+                if *playerType == "human" {
+                        if *chooseOpponent == "computer" {
+                                fmt.Println("Beginning game...")
+                                clientcomp(*ipAddress, *port)   //if a human chooses to play the computer, then the client code will run
+                        } 
+                        // else if opponent is a human!! in this case, you have to be both a client and a server! so have two more functions
+                } else if *playerType == "computer" {
+                        if *chooseOpponent == "human" {
+                                fmt.Println("Waiting for human player...")
+                                servercomp(*port)   //computer will act as a server, and respond to the client human's moves
+                        }
+                } else { 
+                        fmt.Println("Please enter who you are, so that the game can begin.")
         } else {
-                fmt.Println("Please enter either 'client' or 'server'!")
+                fmt.Println("Please enter your player type (human, computer) and opponent type (human, computer)!!")
         }
 }
 
