@@ -66,12 +66,14 @@ func clientcomp(ipAddress string, port int) {
         
         for i := 0; i < numIters; i++ {
         
-               //insert strategy for playing, and depending on whatever the opponent plays, initialize "sendMsg" to what could beat that!!
-                //if blah blah:
-                //    sendMsg := blah blah rps
-                // elif blah blah:
-                //    sendMsg := blah blah rps
-                // then, continue on by printing and sending that message!!!
+                /*
+                 insert strategy for playing, and depending on whatever the opponent plays, initialize "sendMsg" to what could beat that!!
+                if blah blah:
+                   sendMsg := blah blah rps
+                elif blah blah:
+                   sendMsg := blah blah rps
+                then, continue on by printing and sending that message!!!
+                */
         }                    
                             
         clientConn.Close()
