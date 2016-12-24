@@ -11,27 +11,28 @@ import (
         "flag"
 )
 
-/*
- * Fill in the missing parts of this code to complete the client-server
- * implementation. You will need to complete the following high level steps:
- *   1) Parse the command line arguments, so that running "pinpong client"
- *      executes the client code, while running "pingpong server" executes
- *                      the server code.
- *       2) Complete the client function so that it sends a message to the server
- *      once every second for 100 seconds. You can hardcode the address and port
- *                      of the server.
- *       3)     Complete the server function. All it needs to do is check for messages
- *          from the client and respond with its own message. The server should
- *                      stop listenting after it has received 100 messages.
- *   4) Add the ability to specify custom client and server messages from the
- *      command line.
+/* 
+Rules: 
+        1. best 2 out of 3
+        2. Your code should be able to act as either a client or server.
+        3. your rock-paper-scissors program should be able to accept input from the command line, so that a human can play 
+           interactively, and it should also be able to play automatically, submitting moves according to some strategy you
+           have coded up. 
+        4. efficiently handle errors 
+
+Tips:
+        1. use your knowledge of socket programming to complete the task
+        2. work out a common protocol (set of rules for the format and order of the messages that are exchanged between the two sides)
+                - must agree upon things such as which of the three rounds you are on, who made which moves, who won, etc.
  */
+
+
 func main() {
         playerType := flag.String("player", "Beginning game now...", "Are you a computer or a human?")
         chooseOpponent := flag.String("opponent", "Beginning game...", "Are you playing a computer or a human?")
         
-//         ipAddress := flag.String("ipAddress", "169.229.50.178", "input ip address")
-//         port := flag.Int("port", 2003, "input port number")
+//         ipAddress := flag.String("ipAddress", "169.229.50.178", "INPUT IP ADDRESS")
+//         port := flag.Int("port", 2003, "INPUT PORT NUMBER")
 //         flag.Parse()
 
         if *chooseOpponent != "" and *playerType != "" {
@@ -54,8 +55,25 @@ func main() {
 }
 
 func clientcomp(ipAddress string, port int) {
+        clientConn, err := net.Dial("tcp", IPAddressPort)
+        if err != nil {
+                fmt.Println("ClientComp Connection Error:”, err)
+                return
+        }
+                            
+        reader := bufio.NewReader(clientConn)
+        numGames := 3
         
-
+        for i := 0; i < numIters; i++ {
+        
+               //insert strategy for playing, and depending on whatever the opponent plays, initialize "sendMsg" to what could beat that!!
+                //if blah blah:
+                //    sendMsg := blah blah rps
+                // elif blah blah:
+                //    sendMsg := blah blah rps
+                // then, continue on by printing and sending that message!!!
+        }                    
+                            
         clientConn.Close()
 
 }
