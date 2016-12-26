@@ -31,21 +31,25 @@ func main() {
         playerType := flag.String("player", "Beginning game now...", "Are you a computer or a human?")
         chooseOpponent := flag.String("opponent", "Beginning game...", "Are you playing a computer or a human?")
         
+        
 //         ipAddress := flag.String("ipAddress", "169.229.50.178", "INPUT IP ADDRESS")
 //         port := flag.Int("port", 2003, "INPUT PORT NUMBER")
+
+//        
 //         flag.Parse()
 
         if *chooseOpponent != "" and *playerType != "" {
                 if *playerType == "human" {
                         if *chooseOpponent == "computer" {
                                 fmt.Println("Beginning game...")
-                                clientcomp(*ipAddress, *port)   //if a human chooses to play the computer, then the client code will run
-                        } 
-                        // else if opponent is a human!! in this case, you have to be both a client and a server! so have two more functions
+                                clientcomp(*ipAddress, *port)   //human vs computer, using default port and ipaddress
+                        } else if *chooseOpponent == "human" {
+                                clientcomp(/* INSERT IP ADDRESS */, /* INSERT PORT */)  //human vs other computer, using alternate ipaddress and port!
+                 
                 } else if *playerType == "computer" {
                         if *chooseOpponent == "human" {
                                 fmt.Println("Waiting for human player...")
-                                servercomp(*port)   //computer will act as a server, and respond to the client human's moves
+                                servercomp(*port)   //computer will act as a server, and respond to the client human's (will change based on port # flag provided) moves
                         }
                 } else { 
                         fmt.Println("Please enter who you are, so that the game can begin.")
@@ -64,8 +68,29 @@ func clientcomp(ipAddress string, port int) {
         reader := bufio.NewReader(clientConn)
         numGames := 3
         
-        for i := 0; i < numIters; i++ {
-        
+        for i := 0; i < numGames; i++ {
+                recvMsg, err := reader.ReadString('\n')
+                if err != nil {
+                        fmt.Println("Error:”, err)
+                        return
+                }
+                if recvMsg == nil {
+                        sendMsg := "scissors\n"
+                } else if recvMsg == "scissors" {
+                        sendMsg := "paper\n"
+                } else if recvMsg == "paper" {
+                        sendMsg := "rock\n"
+                } else if recvMsg == "rock" {
+                        sendMsg := "scissors\n"
+                }    
+                                   
+                if _, err := clientConn.Write([]byte(sendMsg)); err != nil {
+                        fmt.Println("Send failed:", err)
+                        os.Exit(1)
+                }
+                
+                fmt.Printf("(%d) Player 1 played (%s) and", i, sendMsg)
+                fmt.Printf("(%d) Player 2 played %s", i, recvMsg) 
                 /*
                  insert strategy for playing, and depending on whatever the opponent plays, initialize "sendMsg" to what could beat that!!
                 if blah blah:
@@ -74,7 +99,7 @@ func clientcomp(ipAddress string, port int) {
                    sendMsg := blah blah rps
                 then, continue on by printing and sending that message!!!
                 */
-        }                    
+                }                    
                             
         clientConn.Close()
 
