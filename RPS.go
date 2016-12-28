@@ -37,6 +37,7 @@ func main() {
 
 //        
 //         flag.Parse()
+        
 
         if *chooseOpponent != "" and *playerType != "" {
                 if *playerType == "human" {
@@ -107,9 +108,47 @@ func clientcomp(ipAddress string, port int) {
 
 func servercomp(port int) {
 
+        portString := fmt.Sprintf(":%d", port)
+        ln, err := net.Listen("tcp", portString)
+        if err != nil {
+                fmt.Println("Listen failed:", err)
+                os.Exit(1)
+        }
+
+        serverConn, err := ln.Accept()
+        if err != nil {
+                fmt.Println("Accept failed:", err)
+                os.Exit(1)
+        }
+
+        reader := bufio.NewReader(serverConn)
+        
+        numGames := 3
+        
+        for i:= 0; i < numIters; i++ {
+                recvMsgBytes, err := reader.ReadBytes(‘\n’)
+                if err != nil {
+                        fmt.Println("Receive failed", err)
+                        os.Exit(1)
+                }
+                fmt.Printf("(%d) Recieved: %s", i, string(recvMsgBytes)
+               
+                if string(recvMsgBytes) == nil {
+                        sendMsg := "scissors\n"
+                } else if string(recvMsgBytes) == "scissors" {
+                        sendMsg := "paper\n"
+                } else if string(recvMsgBytes) == "paper" {
+                        sendMsg := "rock\n"
+                } else if string(recvMsgBytes) == "rock" {
+                        sendMsg := "scissors\n"
+                }    
+                           
+                fmt.Printf("(%d) Sending: %s\n", i, sendMsg)
+                if _, err := serverConn.Write([]byte(sendMsg)); err != nil {
+                        fmt.Println("Send failed:", err)
+                        os.Exit(1)
+                }
+        }
         serverConn.Close()
 }
 
-
-
-///will need to create a separate client function to connect with John's client function!!
