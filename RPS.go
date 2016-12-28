@@ -1,5 +1,5 @@
 ///func main, func client, func server
-
+/// questions: should the strategy be automatically carried out by the program, from the beginning move throughout the rest of the game, or should the user actually input each move? Especially when playing against a server?
 package main
 
 import (
@@ -43,14 +43,14 @@ func main() {
                 if *playerType == "human" {
                         if *chooseOpponent == "computer" {
                                 fmt.Println("Beginning game...")
-                                clientcomp(*ipAddress, *port)   //human vs computer, using default port and ipaddress
+                                client(*ipAddress, *port)   //human vs computer, using default port and ipaddress
                         } else if *chooseOpponent == "human" {
-                                clientcomp(/* INSERT IP ADDRESS */, /* INSERT PORT */)  //human vs other computer, using alternate ipaddress and port!
+                                client(/* INSERT IP ADDRESS */, /* INSERT PORT */)  //human vs other computer, using alternate ipaddress and port!
                  
                 } else if *playerType == "computer" {
                         if *chooseOpponent == "human" {
                                 fmt.Println("Waiting for human player...")
-                                servercomp(*port)   //computer will act as a server, and respond to the client human's (will change based on port # flag provided) moves
+                                server(*port)   //computer will act as a server, and respond to the client human's (will change based on port # flag provided) moves
                         }
                 } else { 
                         fmt.Println("Please enter who you are, so that the game can begin.")
@@ -59,39 +59,58 @@ func main() {
         }
 }
 
-func clientcomp(ipAddress string, port int) {
+func client(ipAddress string, port int) {
         clientConn, err := net.Dial("tcp", IPAddressPort)
         if err != nil {
-                fmt.Println("ClientComp Connection Error:”, err)
+                fmt.Println("Client Connection Error:”, err)
                 return
         }
                             
         reader := bufio.NewReader(clientConn)
         numGames := 3
-        
+        myScore := 0
+        oppScore := 0
+                            
         for i := 0; i < numGames; i++ {
                 recvMsg, err := reader.ReadString('\n')
                 if err != nil {
                         fmt.Println("Error:”, err)
                         return
-                }
-                if recvMsg == nil {
-                        sendMsg := "scissors\n"
-                } else if recvMsg == "scissors" {
-                        sendMsg := "paper\n"
-                } else if recvMsg == "paper" {
-                        sendMsg := "rock\n"
-                } else if recvMsg == "rock" {
-                        sendMsg := "scissors\n"
-                }    
+                        }
+                                    
+                // insert function to allow player to select choose move!!          
+                                            
+//                 if oppMove == nil {
+//                         myMove := "scissors\n"
+//                 } else if oppMove == "scissors" {
+//                         myMove := "paper\n"
+//                 } else if oppMove == "paper" {
+//                         myMove := "rock\n"
+//                 } else if oppMove == "rock" {
+//                         myMove := "scissors\n"
+//                 }    
+                                    
+                   switch {
+                   case oppMove == nil:
+                           return askforMove()
+                   case myMove == "rock" && oppMove == "paper", myMove == "paper" && oppMove == "scissors", myMove == "scissors" && oppMove == "rock":
+                           oppScore += 1
+                   default:
+                           myScore += 1
+                          
+                   }
+                                    
+                   fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s). ", i, myMove, oppMove)
+ 
+
                                    
-                if _, err := clientConn.Write([]byte(sendMsg)); err != nil {
+                if _, err := clientConn.Write([]byte(myMove)); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
                 }
                 
-                fmt.Printf("(%d) Player 1 played (%s) and", i, sendMsg)
-                fmt.Printf("(%d) Player 2 played %s", i, recvMsg) 
+                finalStance(myScore, oppScore)
+
                 /*
                  insert strategy for playing, and depending on whatever the opponent plays, initialize "sendMsg" to what could beat that!!
                 if blah blah:
@@ -106,7 +125,35 @@ func clientcomp(ipAddress string, port int) {
 
 }
 
-func servercomp(port int) {
+                                    
+                                    
+func askforMove() {
+        fmt.Println("Please choose whether to play 'rock', 'paper', or 'scissors'.")
+        move := flag.String("player", "random", "Choice of rock, paper, or scissors")
+        
+        if *move != "rock" or *move != "paper" or *move !- "scissors {
+                fmt.Println("Please select a move ['rock', 'paper', or 'scissors']")
+        } else {   //regardless of the move chosen, you want to return it as "whichMove", mentioned above in the client function
+                return *move
+        }
+}
+                                    }
+                                   
+func finalstance(myScore, oppScore string) string {
+        whichMove := askforMove()                 
+              
+        switch {
+                case oppscore == nil and myMove == nil:
+                        fmt.Println("Game has not begun! No score reported (0:0)")
+                case oppScore == myScore:
+                        fmt.Printf("It's a tie! Play one more round for final score. Player 1 has (%s) points and Player 2 has (%s) points", myScore, oppScore)
+                case oppScore > myScore and oppScore + myScore == 3:
+                        fmt.Println("Player 2 wins!")
+                default:
+                        fmt.Println("Player 1 wins!")
+         
+                
+func server(port int) {
 
         portString := fmt.Sprintf(":%d", port)
         ln, err := net.Listen("tcp", portString)
