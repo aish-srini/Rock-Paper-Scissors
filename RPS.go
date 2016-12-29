@@ -156,9 +156,10 @@ func finalstance(myScore, oppScore string) string {
                 default:
                         fmt.Println("Continue playing, till three rounds have been completed")
         }
+}
                 
 func server(port int) {
-
+        //message received is (myMove) in byte form, message then sent through server is the (oppMove) sent in String form!!
         portString := fmt.Sprintf(":%d", port)
         ln, err := net.Listen("tcp", portString)
         if err != nil {
@@ -176,13 +177,14 @@ func server(port int) {
         
         numGames := 3
         
-        for i:= 0; i < numIters; i++ {
+        for i:= 0; i < numGames; i++ {
                 recvMsgBytes, err := reader.ReadBytes(‘\n’)
                 if err != nil {
                         fmt.Println("Receive failed", err)
                         os.Exit(1)
                 }
-                fmt.Printf("(%d) Recieved: %s", i, string(recvMsgBytes)
+                
+                fmt.Printf("(%d) Recieved: %s", i, string(recvMsgBytes))
                
                 if string(recvMsgBytes) == nil {
                         sendMsg := "scissors\n"
@@ -192,7 +194,7 @@ func server(port int) {
                         sendMsg := "rock\n"
                 } else if string(recvMsgBytes) == "rock" {
                         sendMsg := "scissors\n"
-                }    
+                }
                            
                 fmt.Printf("(%d) Sending: %s\n", i, sendMsg)
                 if _, err := serverConn.Write([]byte(sendMsg)); err != nil {
@@ -202,4 +204,6 @@ func server(port int) {
         }
         serverConn.Close()
 }
+
+                           
 
