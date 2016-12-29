@@ -89,19 +89,23 @@ func client(ipAddress string, port int) {
 //                 } else if oppMove == "rock" {
 //                         myMove := "scissors\n"
 //                 }    
+                   myMove := askforMove()
                                     
                    switch {
                    case oppMove == nil:
-                           return askforMove()
+                           return myMove
+                   case oppMove == myMove:
+                           fmt.Println("Tie! Replay round.")
+                           i -= 1
                    case myMove == "rock" && oppMove == "paper", myMove == "paper" && oppMove == "scissors", myMove == "scissors" && oppMove == "rock":
                            oppScore += 1
                    default:
                            myScore += 1
-                          
                    }
                                     
-                   fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s). ", i, myMove, oppMove)
- 
+                   fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", i, myMove, oppMove)
+                                    
+                   finalStance(myScore, oppScore)
 
                                    
                 if _, err := clientConn.Write([]byte(myMove)); err != nil {
@@ -140,18 +144,18 @@ func askforMove() {
                                     }
                                    
 func finalstance(myScore, oppScore string) string {
-        whichMove := askforMove()                 
-              
         switch {
                 case oppscore == nil and myMove == nil:
                         fmt.Println("Game has not begun! No score reported (0:0)")
                 case oppScore == myScore:
                         fmt.Printf("It's a tie! Play one more round for final score. Player 1 has (%s) points and Player 2 has (%s) points", myScore, oppScore)
-                case oppScore > myScore and oppScore + myScore == 3:
+                case oppScore == 2 && myScore == 0, oppScore == 2 && myScore == 1, oppScore == 3 && myScore == 0:
                         fmt.Println("Player 2 wins!")
-                default:
+                case myScore == 2 && oppScore == 0, oppScore == 1 && myScore == 2, oppScore == 0 && myScore == 3:
                         fmt.Println("Player 1 wins!")
-         
+                default:
+                        fmt.Println("Continue playing, till three rounds have been completed")
+        }
                 
 func server(port int) {
 
