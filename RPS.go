@@ -46,7 +46,7 @@ func main() {
                                 client(*ipAddress, *port)   //human vs computer, using default port and ipaddress
                         } else if *chooseOpponent == "human" {
                                 client(/* INSERT IP ADDRESS */, /* INSERT PORT */)  //human vs other computer, using alternate ipaddress and port!
-                 
+                        }
                 } else if *playerType == "computer" {
                         if *chooseOpponent == "human" {
                                 fmt.Println("Waiting for human player...")
@@ -54,9 +54,11 @@ func main() {
                         }
                 } else { 
                         fmt.Println("Please enter who you are, so that the game can begin.")
+                }
         } else {
                 fmt.Println("Please enter your player type (human, computer) and opponent type (human, computer)!!")
         }
+                        
 }
 
 func client(ipAddress string, port int) {
@@ -129,8 +131,7 @@ func client(ipAddress string, port int) {
 
 }
 
-                                    
-                                    
+                                 
 func askforMove() {
         fmt.Println("Please choose whether to play 'rock', 'paper', or 'scissors'.")
         move := flag.String("player", "random", "Choice of rock, paper, or scissors")
@@ -140,10 +141,10 @@ func askforMove() {
         } else {   //regardless of the move chosen, you want to return it as "whichMove", mentioned above in the client function
                 return *move
         }
+                                    
 }
-                                    }
                                    
-func finalstance(myScore, oppScore string) string {
+func finalstance(myScore string, oppScore string) {
         switch {
                 case oppscore == nil and myMove == nil:
                         fmt.Println("Game has not begun! No score reported (0:0)")
@@ -204,6 +205,7 @@ func server(port int) {
         }
         serverConn.Close()
 }
+
 
                            
 
