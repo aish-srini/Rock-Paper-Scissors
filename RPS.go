@@ -9,6 +9,7 @@ import (
         "os"
         "time"
         "flag"
+        "rand"
 )
 
 /* 
