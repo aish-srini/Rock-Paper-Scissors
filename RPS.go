@@ -26,6 +26,16 @@ Tips:
                 - must agree upon things such as which of the three rounds you are on, who made which moves, who won, etc.
  */
 
+var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"} //dictionary, to store all the values
+
+func compPlay() {
+        //generates a random response from the server
+        //cannot choose a random string from a list  of strings...assign each string to numbers instead, then call the dictionary key to get the value???
+        oppMoveNum := rand.Intn(3) //Intn selects a random number in between range (0, 3) -> so basically 0, 1, or 2
+        //then, get the value assigned to the key!! And return it 
+        compMove := compMovesIntForm[oppMoveNum]
+        return compMove
+}
 
 func main() {
         playerType := flag.String("player", "Beginning game now...", "Are you a computer or a human?")
@@ -92,6 +102,7 @@ func client(ipAddress string, port int) {
 //                         myMove := "scissors\n"
 //                 }    
                    myMove := askforMove()
+                   oppMove := compPlay()
                                     
                    switch {
                    case oppMove == nil:
