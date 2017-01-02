@@ -43,11 +43,10 @@ func main() {
         chooseOpponent := flag.String("opponent", "Beginning game...", "Are you playing a computer or a human?")
         
         
-//         ipAddress := flag.String("ipAddress", "169.229.50.178", "INPUT IP ADDRESS")
-//         port := flag.Int("port", 2003, "INPUT PORT NUMBER")
-
-//        
-//         flag.Parse()
+         ipAddress := flag.String("ipAddress", "169.229.50.188", "INPUT IP ADDRESS")
+         port := flag.Int("port", 5867, "INPUT PORT NUMBER")
+        
+        flag.Parse()
         
 
         if *chooseOpponent != "" and *playerType != "" {
@@ -56,7 +55,7 @@ func main() {
                                 fmt.Println("Beginning game...")
                                 client(*ipAddress, *port)   //human vs computer, using default port and ipaddress
                         } else if *chooseOpponent == "human" {
-                                client(/* INSERT IP ADDRESS */, /* INSERT PORT */)  //human vs other computer, using alternate ipaddress and port!
+                                client(/* INSERT JOHN'S IP ADDRESS */, /* INSERT COMMON PORT WITH JOHN*/)  //human vs other computer, using alternate ipaddress and port!
                         }
                 } else if *playerType == "computer" {
                         if *chooseOpponent == "human" {
@@ -129,14 +128,6 @@ func client(ipAddress string, port int) {
                 
                 finalStance(myScore, oppScore)
 
-                /*
-                 insert strategy for playing, and depending on whatever the opponent plays, initialize "sendMsg" to what could beat that!!
-                if blah blah:
-                   sendMsg := blah blah rps
-                elif blah blah:
-                   sendMsg := blah blah rps
-                then, continue on by printing and sending that message!!!
-                */
                 }                    
                             
         clientConn.Close()
@@ -199,6 +190,8 @@ func server(port int) {
                 
                 fmt.Printf("(%d) Recieved: %s", i, string(recvMsgBytes))
                
+                //TEST, AND SEE IF THE FOLLOWING WORKS FOR NOW. IF NOT, CHANGE BY CALLING UPON THE COMPPLAY FUNCTION!!!
+                // depends on whether or not the server should have its own strategy while playing against the client!
                 if string(recvMsgBytes) == nil {
                         sendMsg := "scissors\n"
                 } else if string(recvMsgBytes) == "scissors" {
