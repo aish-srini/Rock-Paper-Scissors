@@ -139,9 +139,9 @@ func askforMove() {
         fmt.Println("Please choose whether to play 'rock', 'paper', or 'scissors'.")
         move := flag.String("player", "random", "Choice of rock, paper, or scissors")
         
-        if *move != "rock" or *move != "paper" or *move !- "scissors {
-                fmt.Println("Please select a move ['rock', 'paper', or 'scissors']")
-        } else {   //regardless of the move chosen, you want to return it as "whichMove", mentioned above in the client function
+        if *move != "rock" or *move != "paper" or *move !- "scissors" {
+                fmt.Println("Please select either 'rock', 'paper', or 'scissors' to proceed with game.")
+        } else { 
                 return *move
         }
                                     
