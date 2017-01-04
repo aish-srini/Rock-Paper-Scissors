@@ -7,7 +7,6 @@ import (
         "fmt"
         "net"
         "os"
-        "time"
         "flag"
         "rand"
 )
@@ -27,15 +26,15 @@ Tips:
                 - must agree upon things such as which of the three rounds you are on, who made which moves, who won, etc.
  */
 
-var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"} //dictionary, to store all the values
+
 
 func compPlay() {
         //generates a random response from the server
         //cannot choose a random string from a list  of strings...assign each string to numbers instead, then call the dictionary key to get the value???
-        oppMoveNum := rand.Intn(3) //Intn selects a random number in between range (0, 3) -> so basically 0, 1, or 2
+        //Intn selects a random number in between range (0, 3) -> so basically 0, 1, or 2
         //then, get the value assigned to the key!! And return it 
-        compMove := compMovesIntForm[oppMoveNum]
-        return compMove
+        var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"} //dictionary, to store all the values
+        return compMovesIntForm[rand.Intn(3)]
 }
 
 func main() {
@@ -43,8 +42,10 @@ func main() {
         chooseOpponent := flag.String("opponent", "Beginning game...", "Are you playing a computer or a human?")
         
         
-         ipAddress := flag.String("ipAddress", "169.229.50.188", "INPUT IP ADDRESS")
-         port := flag.Int("port", 5867, "INPUT PORT NUMBER")
+         myipAddress := flag.String("ipAddress", "169.229.50.188", "INPUT IP ADDRESS")
+         myport := flag.Int("port", 5867, "INPUT PORT NUMBER")
+         johnipAddress := flag.String("ipAddress", "169.229.50.175", "INPUT IP ADDRESS")
+         johnport := flag.Int("port", 8333, "INPUT PORT NUMBER")
         
         flag.Parse()
         
@@ -53,14 +54,14 @@ func main() {
                 if *playerType == "human" {
                         if *chooseOpponent == "computer" {
                                 fmt.Println("Beginning game...")
-                                client(*ipAddress, *port)   //human vs computer, using default port and ipaddress
+                                client(*myipAddress, *myport)   //human vs computer, using default port and ipaddress
                         } else if *chooseOpponent == "human" {
-                                client(/* INSERT JOHN'S IP ADDRESS */, /* INSERT COMMON PORT WITH JOHN*/)  //human vs other computer, using alternate ipaddress and port!
+                                client(*johnipAddress, *johnport)  //human vs other computer, using alternate ipaddress and port!
                         }
                 } else if *playerType == "computer" {
                         if *chooseOpponent == "human" {
                                 fmt.Println("Waiting for human player...")
-                                server(*port)   //computer will act as a server, and respond to the client human's (will change based on port # flag provided) moves
+                                server(*myport)   //computer will act as a server, and respond to the client human's (will change based on port # flag provided) moves
                         }
                 } else { 
                         fmt.Println("Please enter who you are, so that the game can begin.")
