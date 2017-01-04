@@ -16,7 +16,8 @@ func compPlay() {
         return compMovesIntForm[rand.Intn(3)]
 }
 
-
+// ADD ANOTHER HELPER FUNCTION CALLED WINNINGRULES, WHICH YOU CAN USE TO PUT ALL OF THE WINNING RULES, AND ADD TO SCORE THERE, INSTEEAD 
+// OF DOING IT ALL WITHIN THE CLIENT FUNCTION
 func main() {
         playerType := flag.String("player", "Beginning game now...", "Are you a computer or a human?")
         chooseOpponent := flag.String("opponent", "Beginning game...", "Are you playing a computer or a human?")
