@@ -12,15 +12,23 @@ import (
 )
 
 
-func compPlay() {  //opponent's move
+func compPlay(recvMsg string) string {  //opponent's move
         var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"}
+
+        if recvMsg == "rock" {
+                return "paper"
+        } else if recvMsg == "paper" {
+                return "scissors"
+        } else {
+                return "rock"
+        }
         return compMovesIntForm[rand.Intn(3)]
 }
 
 
-func askforMove() { //your move
+func askforMove() string { //your move
         fmt.Println("Choose to play 'rock', 'paper', or 'scissors'")
-        move := flag.String("player", "random", "Choice of rock, paper, or scissors")
+        move := flag.String("move", "random", "Choice of rock, paper, or scissors")
 
         if *move != "rock" || *move != "paper" || *move != "scissors" {
                 fmt.Println("Choose 'rock', 'paper', or 'scissors' to proceed with game")
@@ -28,10 +36,11 @@ func askforMove() { //your move
                 fmt.Println(*move)
         }
 
+        return ""
 }
 
 
-func score(myScore int, oppScore int) {  //current total score
+func score(myScore int, oppScore int) string {  //current total score
         switch {
                 case oppScore == 2:
                         fmt.Printf("Opponent wins, with a final score of (%d):(%s)!", oppScore, myScore)
@@ -46,7 +55,7 @@ func score(myScore int, oppScore int) {  //current total score
 }
 
 
-func rules(myMove string, oppMove string, game int, myScore int, oppScore int) {
+func rules(myMove string, oppMove string, game int, myScore int, oppScore int) string {
         switch {
         case oppMove == myMove:
               fmt.Println("Tie! Replay round.")
@@ -59,9 +68,10 @@ func rules(myMove string, oppMove string, game int, myScore int, oppScore int) {
               myScore += 1
         default:
               return myMove
-        }      
-}
+        }
 
+        return ""
+}
 
 func main() {
         playerType := flag.String("player", "Beginning game now...", "Are you a computer or a human?")
@@ -83,7 +93,7 @@ func main() {
                                 fmt.Println("Beginning game...")
                                 client(*myipAddress, *myport)
                         } else if *chooseOpponent == "human" {
-                                client(*johnipAddress, *johnport)
+                                client(*johnipAddress, *johnport) 
                         }
 
                 } else if *playerType == "computer" {
@@ -122,14 +132,13 @@ func client(ipAddress string, port int) {
                         }
 
                 myMove := askforMove()
-                oppMove := compPlay()
+                oppMove := compPlay(recvMsg)
 
                 fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", i, myMove, oppMove)
 
                 rules(myMove, oppMove, i, myScore, oppScore)
                 score(myScore, oppScore)
-
-
+ 
                 if _, err := clientConn.Write([]byte(myMove)); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
@@ -147,13 +156,13 @@ func client(ipAddress string, port int) {
 func server(port int) {
         portString := fmt.Sprintf(":%d", port)
         ln, err := net.Listen("tcp", portString)
-        if err != "rock" || "paper" || "scissors" {
+        if err != nil {
                 fmt.Println("Listen failed:", err)
                 os.Exit(1)
         } else {
                 fmt.Println("No error found in listening")
         }
-
+        
         serverConn, err := ln.Accept()
         if err != nil {
                 fmt.Println("Accept failed:", err)
@@ -167,7 +176,7 @@ func server(port int) {
         numGames := 3
 
         for game:= 0; game < numGames; game++ {
-                recvMsgBytes, err := reader.ReadBytes("\n")
+                recvMsgBytes, err := reader.ReadBytes('\n')
                 if err != nil {
                         fmt.Println("Receive failed", err)
                         os.Exit(1)
@@ -175,18 +184,10 @@ func server(port int) {
 
                 fmt.Printf("(%d) Recieved: %s", game, string(recvMsgBytes))
 
-
-                if string(recvMsgBytes) == "" {
-                        sendMsg := "scissors\n"
-                } else if string(recvMsgBytes) == "scissors" {
-                        sendMsg := "paper\n"
-                } else if string(recvMsgBytes) == "paper" {
-                        sendMsg := "rock\n"
-                } else if string(recvMsgBytes) == "rock" {
-                        sendMsg := "scissors\n"
-                }
-
-                fmt.Printf("(%d) Sending: %s\n", i, sendMsg)
+                recvMsg := string(recvMsgBytes)
+                sendMsg := compPlay(recvMsg)
+                
+                fmt.Printf("(%d) Sending: %s\n", game, sendMsg)
                 if _, err := serverConn.Write([]byte(sendMsg)); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
