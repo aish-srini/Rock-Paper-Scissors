@@ -111,33 +111,43 @@ func clientint(ipAddress string, port int) {
         clientConn, err := net.Dial("tcp", ipAddressPort)
         if err != nil { fmt.Println("Client Connection Error:", err)
                 return
-        } else {
-                fmt.Println("No error with Client Connection")
         }
 
         reader := bufio.NewReader(clientConn)
+
         numGames := 3
         myScore := 0
         oppScore := 0
 
-        for i := 0; i < numGames; i++ {
+        myMove := askforMove()
+
+        if _, err := clientConn.Write([]byte(myMove)); err != nil {
+                fmt.Println("Send failed:", err)
+                os.Exit(1)
+        }
+
+        for game := 0; game < numGames; game++ {
                 recvMsg, err := reader.ReadString('\n')
+
                 if err != nil { fmt.Println("Error in reading opponent's play:", err)
                         return
                         }
 
                 myMove := askforMove()
                 oppMove := recvMsg
-                
-                fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", i, myMove, oppMove)
 
-                rules(myMove, oppMove, i, myScore, oppScore)
+                fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", game, myMove, oppMove)
+
+                rules(myMove, oppMove, game, myScore, oppScore)
                 score(myScore, oppScore)
- 
+
                 if _, err := clientConn.Write([]byte(myMove)); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
                 }
+
+                time.Sleep(5 * time.Second)
+
                 
         }
 
@@ -238,7 +248,7 @@ func serverauto(port int) {
         } else {
                 fmt.Println("No error found in listening")
         }
-        
+
         serverConn, err := ln.Accept()
         if err != nil {
                 fmt.Println("Accept failed:", err)
@@ -247,11 +257,13 @@ func serverauto(port int) {
                 fmt.Println("Message accepted, no error found")
         }
 
-        reader := bufio.NewReader(serverConn)
+    //    reader := bufio.NewReader(serverConn)
 
         numGames := 3
 
         for game:= 0; game < numGames; game++ {
+                reader := bufio.NewReader(serverConn)
+
                 recvMsgBytes, err := reader.ReadBytes('\n')
                 if err != nil {
                         fmt.Println("Receive failed", err)
@@ -262,12 +274,13 @@ func serverauto(port int) {
 
                 oppMove := string(recvMsgBytes)
                 myMove := compPlay(oppMove)
-                
+
                 fmt.Printf("(%d) Sending: %s\n", game, myMove)
                 if _, err := serverConn.Write([]byte(myMove)); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
                 }
+
         }
         serverConn.Close()
 }
