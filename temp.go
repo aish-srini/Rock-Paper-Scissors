@@ -113,44 +113,59 @@ func main() {
 
 func client(ipAddress string, port int) {
         ipAddressPort := fmt.Sprintf("%s:%d", ipAddress, port)
+
+        fmt.Println("Happy birthday, in the client function")
         clientConn, err := net.Dial("tcp", ipAddressPort)
+
+        fmt.Println("After clientconn is made!")
+
         if err != nil { fmt.Println("Client Connection Error:", err)
                 return
         } else {
                 fmt.Println("No error with Client Connection")
         }
 
+        fmt.Println("After caaaake is made!")
+
         reader := bufio.NewReader(clientConn)
+
         numGames := 3
         myScore := 0
         oppScore := 0
+       
+        for game := 0; game < numGames; game++ {
 
-        for i := 0; i < numGames; i++ {
                 recvMsg, err := reader.ReadString('\n')
                 if err != nil { fmt.Println("Error in reading opponent's play:", err)
                         return
-                        }
-
-                myMove := askforMove()
-                oppMove := compPlay(recvMsg)
-
-                fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", i, myMove, oppMove)
-
-                rules(myMove, oppMove, i, myScore, oppScore)
-                score(myScore, oppScore)
- 
-                if _, err := clientConn.Write([]byte(myMove)); err != nil {
-                        fmt.Println("Send failed:", err)
-                        os.Exit(1)
+                } else {
+                        fmt.Println("Opponent's play read")
                 }
 
+                myMove := askforMove()
+                oppMove := recvMsg
+
+                fmt.Printf("(%d) Player 1 played %s and Player 2 played %s.", game, myMove, oppMove)
+
+                rules(myMove, oppMove, game, myScore, oppScore)
+                score(myScore, oppScore)
+
+
+               if _, err := clientConn.Write([]byte(myMove)); err != nil {
+                       fmt.Println("Send failed:", err)
+                       os.Exit(1)
+                }
+
+                rules(myMove, oppMove, game, myScore, oppScore)
                 score(myScore, oppScore)
 
         }
 
         clientConn.Close()
+
 }
 
+ 
 
 
 func server(port int) {
@@ -159,11 +174,12 @@ func server(port int) {
         if err != nil {
                 fmt.Println("Listen failed:", err)
                 os.Exit(1)
-        } else {
-                fmt.Println("No error found in listening")
         }
-        
+
         serverConn, err := ln.Accept()
+
+        fmt.Println("ln.accept message passed, connection established")
+
         if err != nil {
                 fmt.Println("Accept failed:", err)
                 os.Exit(1)
@@ -174,6 +190,7 @@ func server(port int) {
         reader := bufio.NewReader(serverConn)
 
         numGames := 3
+
 
         for game:= 0; game < numGames; game++ {
                 recvMsgBytes, err := reader.ReadBytes('\n')
@@ -186,7 +203,7 @@ func server(port int) {
 
                 recvMsg := string(recvMsgBytes)
                 sendMsg := compPlay(recvMsg)
-                
+
                 fmt.Printf("(%d) Sending: %s\n", game, sendMsg)
                 if _, err := serverConn.Write([]byte(sendMsg)); err != nil {
                         fmt.Println("Send failed:", err)
@@ -195,4 +212,3 @@ func server(port int) {
         }
         serverConn.Close()
 }
-
