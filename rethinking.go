@@ -7,12 +7,17 @@ import (
         "os"
         "flag"
         "math/rand"
+//        "io"
 )
 
-//helper function for automatic play
+// command line prompt  -> ./rps -iora=interactive -player=client -ipAddress=localhost -port=5867
+
+var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"}
+
+
 func compPlay(recvMsg string) string {  //opponent's move
         var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"}
-        
+
         if recvMsg == "rock" {
                 return "paper"
         } else if recvMsg == "paper" {
@@ -23,53 +28,72 @@ func compPlay(recvMsg string) string {  //opponent's move
         return compMovesIntForm[rand.Intn(3)]
 }
 
-//helper function for interactive playo0v                                                                                      09vvv
+
 func askforMove() string { //your move
         fmt.Println("Choose to play 'rock', 'paper', or 'scissors'")
-        move := flag.String("move", "random", "Choice of rock, paper, or scissors")
 
-        if *move != "rock" || *move != "paper" || *move != "scissors" {
-                fmt.Println("Choose 'rock', 'paper', or 'scissors' to proceed with game")
-        } else {
-                fmt.Println(*move)
-        }
-        return ""
+        var move string
+        fmt.Scanln(&move)
+        return move
 }
 
 
 func score(myScore int, oppScore int) string {  //current total score
         switch {
                 case oppScore == 2:
-                        fmt.Printf("Opponent wins, with a final score of (%d):(%s)!", oppScore, myScore)
-                        return "Game over"
+                        fmt.Printf("Opponent wins, with a final score of (%d):(%d)!", oppScore, myScore)
+                        os.Exit(1)
                 case myScore == 2:
-                        fmt.Printf("You win, with a final score of (%d):(%s)!", myScore, oppScore)
-                        return "Game over"
+                        fmt.Printf("You win, with a final score of (%d):(%d)!", myScore, oppScore)
+                        os.Exit(1)
                 default:
-                        fmt.Printf("Continue playing. Current score, you versus opponent, is (%d):(%s)", myScore, oppScore)
+                        fmt.Printf("Continue playing. Current score, you versus opponent, is (%d):(%d)", myScore, oppScore)
                         return "Game continues"
         }
+        return ""
 }
 
 
 func rules(myMove string, oppMove string, game int, myScore int, oppScore int) string {
         switch {
+        case myMove == "quit":
+                os.Exit(1)
+        case myMove == "":
+                fmt.Println("No move given")
         case oppMove == myMove:
-              fmt.Println("Tie! Replay round.")
-              game -= 1
-        case myMove == "rock" && oppMove == "paper", myMove == "paper" && oppMove == "scissors", myMove == "scissors" && oppMove == "rock":
-              fmt.Println("Opponent wins this round! Play another round.")
-              oppScore += 1
-        case oppMove == "rock" && myMove == "paper", oppMove == "paper" && myMove == "scissors", oppMove == "scissors" && myMove == "rock":
-              fmt.Println("You win this round! Play another round.")
-              myScore += 1
+                game -= 1
+                return "tie"
+        case myMove == "rock"
+                if oppMove == "paper" {
+                        oppScore += 1
+                        return oppMove
+                } else if oppMove == "scissors" {
+                        myScore += 1
+                        return myMove
+                }
+        case myMove == "paper":
+                if oppMove == "scissors" {
+                        oppScore += 1
+                        return oppMove
+                } else if oppMove == "rock" {
+                        myScore += 1
+                        return myMove
+                }
+        case myMove == "scissors":
+                if oppMove == "rock" {
+                        oppScore += 1
+                        return oppMove
+                } else if oppMove == "paper" {
+                        myScore += 1
+                        return myMove
+                }
         default:
-              return myMove
+                return myMove
+
         }
 
         return ""
 }
-
 
 
 
@@ -78,12 +102,13 @@ func main() {
         player := flag.String("player", "filler", "Are you a server or a client?")
         opponent := flag.String("opponent", "filler", "Are you playing against a server or client?")
 
-        // my client against my server on same port, my client against John's server, my server against John's client                 
+
         ipAddress := flag.String("ipAddress", "169.229.50.188", "or 169.229.50.175")
-        port := flag.Int("port", "5867", "8333")
-        
+        port := flag.Int("port", 5867, "8333")
+
+
         flag.Parse()
-        
+
         if *player != "" && *opponent != "" && *interorauto != "" {
                 if *player == "server" && *interorauto == "interactive" {
                         fmt.Println("Beginning game as an interactive server...")
@@ -99,11 +124,14 @@ func main() {
                         clientauto(*ipAddress, *port)
                 } else {
                         fmt.Println("Please enter your player type, and how you want to play this game")
-                }
+                }      
+
         } else {
-                return "Please select who you and your opponent are, and if you want to play interactively or automatically"
+                fmt.Println("Please select who you and your opponent are, and if you want to play interactively or automatically")
         }
+
 }
+
 
 
 func clientint(ipAddress string, port int) {
@@ -112,43 +140,54 @@ func clientint(ipAddress string, port int) {
         if err != nil { fmt.Println("Client Connection Error:", err)
                 return
         }
-
-        reader := bufio.NewReader(clientConn)
+        fmt.Println("Passed net.dial checkpoint")
 
         numGames := 3
         myScore := 0
         oppScore := 0
 
-        myMove := askforMove()
-
-        if _, err := clientConn.Write([]byte(myMove)); err != nil {
-                fmt.Println("Send failed:", err)
-                os.Exit(1)
-        }
-
         for game := 0; game < numGames; game++ {
-                recvMsg, err := reader.ReadString('\n')
-
-                if err != nil { fmt.Println("Error in reading opponent's play:", err)
-                        return
-                        }
+                fmt.Println("Beginning loop now!")
 
                 myMove := askforMove()
-                oppMove := recvMsg
 
-                fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", game, myMove, oppMove)
-
-                rules(myMove, oppMove, game, myScore, oppScore)
-                score(myScore, oppScore)
-
-                if _, err := clientConn.Write([]byte(myMove)); err != nil {
+                if _, err := clientConn.Write([]byte(myMove + "\n")); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
                 }
 
-                time.Sleep(5 * time.Second)
+                reader := bufio.NewReader(clientConn)
+                recvMsgBytes, err := reader.ReadString('\n')
+                if err != nil { fmt.Println("Error in reading opponent's play:", err)
+                        return
+                }
 
-                
+                fmt.Println("recvMsg checkpoint passed")
+
+                oppMove := string(recvMsgBytes)
+
+                fmt.Println("Rock...Paper...Scissors...GO!")
+
+                fmt.Printf("(%d) You played (%s) and Opponent played (%s).", game, myMove, oppMove)
+
+                fmt.Println("Who played what, just passed")
+                gamewinner := rules(myMove, oppMove, game, myScore, oppScore)
+
+                if gamewinner == "tie" { game -= 1
+                } else if gamewinner == myMove {
+                        fmt.Println("Congratulations, you win this round!")
+                        myScore += 1
+
+                } else if gamewinner == oppMove {
+                        fmt.Println("Sorry, your opponent won this round!")
+                        oppScore += 1
+
+                } else {
+                        fmt.Println("Please enter a move")
+                }
+
+                score(myScore, oppScore)
+
         }
 
         clientConn.Close()
@@ -170,29 +209,32 @@ func clientauto(ipAddress string, port int) {
         myScore := 0
         oppScore := 0
 
-        for i := 0; i < numGames; i++ {
+        for game := 0; game < numGames; game++ {
+                fmt.Println("Rock...Paper...Scissors...GO!")
+
                 recvMsg, err := reader.ReadString('\n')
                 if err != nil { fmt.Println("Error in reading opponent's play:", err)
                         return
                         }
 
-                myMove := compPlay(recvMsg)
                 oppMove := recvMsg
-                
-                fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", i, myMove, oppMove)
+                myMove := compPlay(oppMove)
 
-                rules(myMove, oppMove, i, myScore, oppScore)
-                score(myScore, oppScore)
- 
                 if _, err := clientConn.Write([]byte(myMove)); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
                 }
-                
+
+                fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", game, myMove, oppMove)
+
+                rules(myMove, oppMove, game, myScore, oppScore)
+                score(myScore, oppScore)
+
         }
 
         clientConn.Close()
 }
+
         
 
 func serverint(port int) {
@@ -204,7 +246,7 @@ func serverint(port int) {
         } else {
                 fmt.Println("No error found in listening")
         }
-        
+
         serverConn, err := ln.Accept()
         if err != nil {
                 fmt.Println("Accept failed:", err)
@@ -216,24 +258,51 @@ func serverint(port int) {
         reader := bufio.NewReader(serverConn)
 
         numGames := 3
+        myScore := 0
+        oppScore := 0
 
         for game:= 0; game < numGames; game++ {
+                fmt.Println("Beginning loop now!")
                 recvMsgBytes, err := reader.ReadBytes('\n')
                 if err != nil {
                         fmt.Println("Receive failed", err)
                         os.Exit(1)
                 }
 
-                fmt.Printf("(%d) Recieved: %s", game, string(recvMsgBytes))
-
                 oppMove := string(recvMsgBytes)
-                myMove := askforMove()
-                
-                fmt.Printf("(%d) Sending: %s\n", game, myMove)
-                if _, err := serverConn.Write([]byte(myMove)); err != nil {
+
+                fmt.Println("Rock...Paper...Scissors...GO!")
+                fmt.Println("Choose to play either rock, paper, or scissors")
+
+                myMove :=  askforMove()
+
+                if _, err := serverConn.Write([]byte(myMove + "\n")); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
                 }
+
+
+                fmt.Printf("(%d) You played (%s) and Opponent played (%s).", game, myMove, oppMove)
+
+                fmt.Println("Who played what just passed!")
+
+                gamewinner := rules(myMove, oppMove, game, myScore, oppScore)
+
+                if gamewinner == "tie" { game -= 1
+                } else if gamewinner == myMove {
+                        fmt.Println("Congratulations, you win this round!")
+                        myScore += 1
+
+                } else if gamewinner == oppMove {
+                        fmt.Println("Sorry, your opponent won this round!")
+                        oppScore += 1
+
+                } else {
+                        fmt.Println("Technical difficulty. Conside replaying round?")
+                }
+
+                score(myScore, oppScore)
+                
         }
         serverConn.Close()
 }
@@ -245,42 +314,57 @@ func serverauto(port int) {
         if err != nil {
                 fmt.Println("Listen failed:", err)
                 os.Exit(1)
-        } else {
-                fmt.Println("No error found in listening")
         }
 
         serverConn, err := ln.Accept()
         if err != nil {
                 fmt.Println("Accept failed:", err)
                 os.Exit(1)
-        } else {
-                fmt.Println("Message accepted, no error found")
         }
 
-    //    reader := bufio.NewReader(serverConn)
+        reader := bufio.NewReader(serverConn)
 
         numGames := 3
+        myScore := 0
+        oppScore := 0
 
         for game:= 0; game < numGames; game++ {
-                reader := bufio.NewReader(serverConn)
-
                 recvMsgBytes, err := reader.ReadBytes('\n')
                 if err != nil {
                         fmt.Println("Receive failed", err)
                         os.Exit(1)
                 }
 
-                fmt.Printf("(%d) Recieved: %s", game, string(recvMsgBytes))
-
                 oppMove := string(recvMsgBytes)
                 myMove := compPlay(oppMove)
 
-                fmt.Printf("(%d) Sending: %s\n", game, myMove)
-                if _, err := serverConn.Write([]byte(myMove)); err != nil {
-                        fmt.Println("Send failed:", err)
-                        os.Exit(1)
+                fmt.Printf("(%d) You played (%s) and Opponent played (%s).", game, myMove, oppMove)
+                gamewinner := rules(myMove, oppMove, game, myScore, oppScore)
+
+                if gamewinner == "tie" { game -= 1
+                } else if gamewinner == myMove {
+                        fmt.Println("Congratulations, you win this round!")
+                        myScore += 1
+
+                } else if gamewinner == oppMove {
+                        fmt.Println("Sorry, your opponent won this round!")
+                        oppScore += 1
+
+                } else {
+                        fmt.Println("Technical difficulty. Consider replaying round?")
                 }
 
+                score(myScore, oppScore)
+
+
+                if _, err := serverConn.Write([]byte(myMove + "\n")); err != nil {
+                        fmt.Println("Send failed:", err)
+                        os.Exit(1)
+                } else {
+                        fmt.Println("Message sent!")
+                }
+
+//                io.Copy(os.Stdout, serverConn)
         }
         serverConn.Close()
 }
