@@ -6,5 +6,5 @@ About:
 
 Rules:
 - Best 2 of 3
-- Must accept input from command line, so user can play interactively and automatically
+- Must accept input from command line, so user can play interactively or automatically
 - User moves strategically, based on strategies created
