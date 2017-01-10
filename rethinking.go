@@ -219,29 +219,56 @@ func clientauto(ipAddress string, port int) {
         numGames := 3
         myScore := 0
         oppScore := 0
-
+        
         for game := 0; game < numGames; game++ {
-                fmt.Println("Rock...Paper...Scissors...GO!")
+                fmt.Println("Beginning loop now!")
 
-                recvMsg, err := reader.ReadString('\n')
-                if err != nil { fmt.Println("Error in reading opponent's play:", err)
-                        return
-                        }
-
-                oppMove := recvMsg
                 myMove := compPlay(oppMove)
 
-                if _, err := clientConn.Write([]byte(myMove)); err != nil {
+                if _, err := clientConn.Write([]byte(myMove + "\n")); err != nil {
                         fmt.Println("Send failed:", err)
                         os.Exit(1)
                 }
 
+//                reader := bufio.NewReader(clientConn)
+                recvMsgBytes, err := reader.ReadString('\n')
+                if err != nil { fmt.Println("Error in reading opponent's play:", err)
+                        return
+                }
 
-                fmt.Printf("(%d) Player 1 played (%s) and Player 2 played (%s).", game, myMove, oppMove)
+                oppMove := string(recvMsgBytes)
 
-                rules(myMove, oppMove, game, myScore, oppScore)
+                fmt.Println("------------------------------")
+
+                fmt.Println("Rock...Paper...Scissors...GO!")
+
+                fmt.Printf("(%d) You played (%s) and Opponent played (%s)", game, myMove, oppMove)
+
+                fmt.Println("Winner of game, about to be calculated")
+                fmt.Println("You played: ", myMove)
+                fmt.Println("Opponent played: ", oppMove)
+
+                gamewinner := rules(myMove, oppMove, game, myScore, oppScore)
+                fmt.Println("Winner is: ", gamewinner)
+
+                if gamewinner == "tie" {
+                        game -= 1
+                        fmt.Println("It's a tie. Play round again!\n")
+
+                } else if gamewinner == myMove {
+                        fmt.Println("Congratulations, you win this round\n")
+                        myScore += 1
+
+                } else if gamewinner == oppMove {
+                        fmt.Println("Sorry, you lose this round\n")
+                        oppScore += 1
+
+                } else {
+                        fmt.Println("Technical difficulty. Try again\n")
+                }
+
                 score(myScore, oppScore)
-
+                
         }
 
         clientConn.Close()
@@ -334,12 +361,16 @@ func serverauto(port int) {
         if err != nil {
                 fmt.Println("Listen failed:", err)
                 os.Exit(1)
-        }
+        } else {
+                fmt.Println("No error found in listening")
+        } 
 
         serverConn, err := ln.Accept()
         if err != nil {
                 fmt.Println("Accept failed:", err)
                 os.Exit(1)
+        } else {
+                fmt.Println("Message accepted, no error found")
         }
 
         reader := bufio.NewReader(serverConn)
@@ -347,8 +378,14 @@ func serverauto(port int) {
         numGames := 3
         myScore := 0
         oppScore := 0
+       
 
         for game:= 0; game < numGames; game++ {
+                fmt.Println("Beginning loop now")
+                
+//              scanner := bufio.NewScanner(os.Stdin)
+//                userInput := scanner.Text()
+
                 recvMsgBytes, err := reader.ReadBytes('\n')
                 if err != nil {
                         fmt.Println("Receive failed", err)
@@ -356,10 +393,22 @@ func serverauto(port int) {
                 }
 
                 oppMove := string(recvMsgBytes)
+                
+                fmt.Println("------------------------------")
+                fmt.Println("Rock...Paper...Scissors...GO!")
+                
                 myMove := compPlay(oppMove)
+                
+                if _, err := serverConn.Write([]byte(myMove + "\n")); err != nil {
+                        fmt.Println("Send failed:", err)
+                        os.Exit(1)
+                }
+                
                 fmt.Printf("(%d) You played (%s) and Opponent played (%s).", game, myMove, oppMove)
 
+                fmt.Println("Game winner about to be calculated")
                 gamewinner := rules(myMove, oppMove, game, myScore, oppScore)
+                fmt.Println("Game winner just finished calculating")
 
                 if gamewinner == "tie" { game -= 1
                 } else if gamewinner == myMove {
@@ -374,18 +423,10 @@ func serverauto(port int) {
                         fmt.Println("Technical difficulty. Consider replaying round?")
                 }
 
+//              io.Copy(os.Stdout, serverConn)
                 score(myScore, oppScore)
-
-
-                if _, err := serverConn.Write([]byte(myMove + "\n")); err != nil {
-                        fmt.Println("Send failed:", err)
-                        os.Exit(1)
-                } else {
-                        fmt.Println("Message sent!")
-                }
-
-//                io.Copy(os.Stdout, serverConn)
         }
         serverConn.Close()
 }
+
 
