@@ -66,7 +66,7 @@ func rules(myMove string, oppMove string, game int, myScore int, oppScore int) s
         case oppMove == myMove:
                 game -= 1
                 return "tie"
-        case myMove == "rock"
+        case myMove == "rock":
                 if oppMove == "paper" {
                         oppScore += 1
                         return oppMove
