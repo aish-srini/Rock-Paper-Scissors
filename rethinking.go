@@ -18,11 +18,11 @@ var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"}
 func compPlay(recvMsg string) string {  //opponent's move
 //        var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"}
 
-        if recvMsg == "rock" {
+        if recvMsg == "rock\n" {
                 return "paper"
-        } else if recvMsg == "paper" {
+        } else if recvMsg == "paper\n" {
                 return "scissors"
-        } else if recvMsg == "scissors" {
+        } else if recvMsg == "scissors\n" {
                 return "rock"
         } else {
                 return compMovesIntForm[rand.Intn(3)]
@@ -237,6 +237,14 @@ func clientauto(ipAddress string, port int) {
 
         myMove := compMovesIntForm[rand.Intn(3)]
         fmt.Println(myMove)
+        
+        /* myMove := askforMove()
+
+                if _, err := clientConn.Write([]byte(myMove + "\n")); err != nil {
+                        fmt.Println("Send failed:", err)
+                        os.Exit(1)
+                }
+        */
 
         if _, err := clientConn.Write([]byte(myMove + "\n")); err != nil {
                 fmt.Println("Send failed:", err)
@@ -305,6 +313,8 @@ func clientauto(ipAddress string, port int) {
                 }
 
                 score(myScore, oppScore)
+                time.Sleep(3 * time.Second)
+
 
         }
 
