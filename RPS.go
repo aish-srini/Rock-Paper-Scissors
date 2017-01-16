@@ -135,7 +135,8 @@ func client(ipAddress string, port int) {
 
 }
 
-                                 
+   
+                                    
 func askforMove() {
         fmt.Println("Please choose whether to play 'rock', 'paper', or 'scissors'.")
         move := flag.String("player", "random", "Choice of rock, paper, or scissors")
