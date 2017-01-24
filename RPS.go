@@ -10,7 +10,8 @@ import (
         "time"
 )
 
-// command line prompt  -> ./rps -iora=interactive -player=client -ipAddress=localhost -port=5867
+// command line prompt  -> ./rps -iora=interactive or automatic -player=client -ipAddress=localhost or ipaddress.of.server -port=5867
+//                         ./rps -iora=interactive or automatic -player=server -ipAddress=localhost -port=5867
 
 var compMovesIntForm = map[int]string {0: "rock", 1: "paper", 2: "scissors"}
 
